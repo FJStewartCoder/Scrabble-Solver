@@ -59,7 +59,7 @@ def speed_test(word_length, num_words):
 
 def main():
     test()
-    speed_test(100, 100 * 1000)
+    speed_test(1000, 1000 * 1000)
 
 
 if __name__ == '__main__':

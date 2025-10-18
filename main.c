@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
 	// if no args, perform the tests
 	else {
 		test();
-		speed_test(100, 100 * 1000);
+		speed_test(1000, 1000 * 1000);
 	}
 
 	return 0;
