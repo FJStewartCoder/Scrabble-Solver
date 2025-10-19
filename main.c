@@ -77,6 +77,27 @@ void test() {
 	}
 }
 
+void perform_test(char* word_list, unsigned int word_length, unsigned int word_count) {
+	printf("Test started!\n");
+
+	clock_t start = clock();
+
+	// pass a pointer to the start of the word for each word to the get_score function
+	// pass pointer from idx 0 each word_length + 1
+	// e.g a  a  0  a  a  0  a  a  0
+	//     0, 1, 2, 3, 4, 5, 6, 7, 8
+	// so pass 0, 3, 6 etc. Each word_len + 1 starting at 0
+	for (unsigned int word = 0; word < word_count; word++) {
+		get_score(&word_list[word * (word_length + 1)]);
+	}
+
+	clock_t end = clock();
+	
+	clock_t ticks = end - start;
+
+	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", word_count, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
+}
+
 // the main speed test
 int speed_test(unsigned int word_length, unsigned int num_words) {
 	// ------------------------------------------------------------------------------------
@@ -131,24 +152,9 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	// ------------------------------------------------------------------------------------
 	// testing 
 	
-	printf("Test started!\n");
-
-	clock_t start = clock();
-
-	// pass a pointer to the start of the word for each word to the get_score function
-	// pass pointer from idx 0 each word_length + 1
-	// e.g a  a  0  a  a  0  a  a  0
-	//     0, 1, 2, 3, 4, 5, 6, 7, 8
-	// so pass 0, 3, 6 etc. Each word_len + 1 starting at 0
-	for (unsigned int word = 0; word < num_words; word++) {
-		get_score(&words[word * (word_length + 1)]);
+	for (int i = 0; i < 3; i++) {
+		perform_test(words, word_length, num_words);
 	}
-
-	clock_t end = clock();
-	
-	clock_t ticks = end - start;
-
-	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", num_words, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
 
 	// ------------------------------------------------------------------------------------
 	// free arrays
