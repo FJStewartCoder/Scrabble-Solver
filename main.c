@@ -26,6 +26,21 @@ int get_score(char *word) {
 	return score;
 }
 
+// function to get the score of any word
+int get_score_fast(char *word, unsigned int word_len) {
+	// the score
+	int score = 0;
+	
+	// word_len number of times
+	for (int i = 0; i < word_len; i++) {
+		// since characters is just an int
+		// get the numberer in the letter_scores array at the number that the character represents
+		score += letter_scores[word[i]];
+	}
+	
+	return score;
+}
+
 void make_score_array() {
 	// array of all scores for the alphabet
 	const int alphabet_score[26] = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
@@ -77,6 +92,23 @@ void test() {
 	}
 }
 
+void perform_test(char *word_list, unsigned int word_length, unsigned int word_count) {
+	printf("Test started!\n");
+
+	clock_t start = clock();
+
+	// pass a pointer to the start of the word for each word to the get_score function
+	for (unsigned int word = 0; word < word_count; word++) {
+		get_score_fast(&word_list[word * word_length], word_length);
+	}
+
+	clock_t end = clock();
+	
+	clock_t ticks = end - start;
+
+	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", word_count, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
+}
+
 // the main speed test
 int speed_test(unsigned int word_length, unsigned int num_words) {
 	// ------------------------------------------------------------------------------------
@@ -84,10 +116,8 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	
 	printf("Started allocating memory...\n");
 	
-	// need to do this because it will be one long array of characters but each word length
-	// characters we will have a null character to end the string
-	// so we need word length + 1 per word so 100 letters of word + 1 for null
-	unsigned int word_size = num_words * (word_length + 1);
+	// number of characters that are allocated
+	unsigned int word_size = num_words * word_length;
 
 	// allocate some memory to store a long string of characters
 	char *words = malloc(word_size * sizeof(char));
@@ -107,7 +137,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 
 	// define all letters and the number of letters
 	const char letters[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
-	int num_letters = sizeof(letters) / sizeof(letters[0]) - 1;	
+	int num_letters = (sizeof(letters) / sizeof(letters[0])) - 1;	
 	
 	// the current random number
 	int letter_number;
@@ -117,38 +147,15 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 		letter_number = rand() % num_letters;
 		words[letter] = letters[letter_number]; 
 	}
-	
-	// every word_length + 1 characters should be a null terminator to define the end of each string
-	// e.g a  a  0  a  a  0  a  a  0
-	//     0, 1, 2, 3, 4, 5, 6, 7, 8
-	// so word len here is 2 so we need null terminators each word_len + 1 starting at the index word length
-	for (unsigned int null_pos = word_length; null_pos < word_size; null_pos += (word_length + 1)) {
-		words[null_pos] = '\0';
-	}
 
 	printf("Word creation complete!\n");
 	
 	// ------------------------------------------------------------------------------------
 	// testing 
 	
-	printf("Test started!\n");
-
-	clock_t start = clock();
-
-	// pass a pointer to the start of the word for each word to the get_score function
-	// pass pointer from idx 0 each word_length + 1
-	// e.g a  a  0  a  a  0  a  a  0
-	//     0, 1, 2, 3, 4, 5, 6, 7, 8
-	// so pass 0, 3, 6 etc. Each word_len + 1 starting at 0
-	for (unsigned int word = 0; word < num_words; word++) {
-		get_score(&words[word * (word_length + 1)]);
+	for (int i = 0; i < 3; i++) {
+		perform_test(words, word_length, num_words);
 	}
-
-	clock_t end = clock();
-	
-	clock_t ticks = end - start;
-
-	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", num_words, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
 
 	// ------------------------------------------------------------------------------------
 	// free arrays
