@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <windows.h>
+
+#define MAX_THREADS 10
 
 // array that stores all of the letter scores for each ASCII (8bit) character
 // majority of this array is 0s
@@ -77,18 +80,63 @@ void test() {
 	}
 }
 
-void perform_test(char *word_list, unsigned int word_length, unsigned int word_count) {
-	printf("Test started!\n");
+typedef struct test_args {
+	char *word_list;
+	unsigned int word_length;
+	unsigned int word_start;
+	unsigned int word_count;
+} test_args_t;
 
-	clock_t start = clock();
+DWORD WINAPI word_score_loop(void *args_) {
+	test_args_t *args = (test_args_t*)args_;
 
 	// pass a pointer to the start of the word for each word to the get_score function
 	// pass pointer from idx 0 each word_length + 1
 	// e.g a  a  0  a  a  0  a  a  0
 	//     0, 1, 2, 3, 4, 5, 6, 7, 8
 	// so pass 0, 3, 6 etc. Each word_len + 1 starting at 0
-	for (unsigned int word = 0; word < word_count; word++) {
-		get_score(&word_list[word * (word_length + 1)]);
+
+	for (unsigned int word = args->word_start; word < args->word_count; word++) {
+		get_score(&args->word_list[word * (args->word_length + 1)]);
+	}
+
+	return 0;
+}
+
+void perform_test(char *word_list, unsigned int word_length, unsigned int word_count, unsigned int num_threads) {
+	// list of threads at size of max threads
+	HANDLE threads[MAX_THREADS];
+
+	// dont allow more than max threads
+	if (num_threads > MAX_THREADS) {
+		return;
+	}
+
+	printf("Test started!\n");
+
+	clock_t start = clock();
+
+	// tests args which need to be cast as void*
+	test_args_t args = {word_list, word_length, 0, 0};
+
+	// iterate num threads time and create the thread
+	// store the thread in the thread list
+	for (int i = 0; i < num_threads; i++) {
+		// change the args for each one
+		args.word_start = args.word_count;
+		args.word_count = word_count * ((float)(i + 1) / num_threads);
+
+		HANDLE thread = CreateThread(NULL, 0, word_score_loop, (void*)(&args), 0, NULL);
+
+		// thread start message
+		printf("Started thread %d - (%d, %d)\n", i + 1, args.word_start, args.word_count);
+
+		threads[i] = thread;
+	}
+
+	// wait for threads to finish before stopping timer
+	for (int i = 0; i < num_threads; i++) {
+		WaitForSingleObject(threads[i], INFINITE);
 	}
 
 	clock_t end = clock();
@@ -153,7 +201,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	// testing 
 	
 	for (int i = 0; i < 3; i++) {
-		perform_test(words, word_length, num_words);
+		perform_test(words, word_length, num_words, 2);
 	}
 
 	// ------------------------------------------------------------------------------------
