@@ -3,82 +3,27 @@
 #include <time.h>
 #include <windows.h>
 
+#include "score.h"
+
 #define MAX_THREADS 10
 
-// array that stores all of the letter scores for each ASCII (8bit) character
-// majority of this array is 0s
-// a lookup is faster than if statement
-int letter_scores[256];
 
+typedef struct test_args {
+	// pointer to an array of characters
+	char *word_list;
+	// how much memory has been allocated
+	unsigned int memory_len;
 
-// function to get the score of any word
-int get_score_fast(char *word, unsigned int word_length) {
-	// the score
-	int score = 0;
-	
-	// iterate the word until the string null character
-	for (size_t i = 0; i < word_length; i++) {
-		// since characters is just an int
-		// get the numberer in the letter_scores array at the number that the character represents
-		score += letter_scores[word[i]];
-	}
-	
-	return score;
-}
+	// length of each word
+	unsigned int word_length;
+	// number of words
+	unsigned int word_count;
+	// where to start processing the words
+	unsigned int word_start;
 
-
-// function to get the score of any word
-int get_score(char *word) {
-	// the current character's index in the given word
-	int char_idx = 0;
-	// the score
-	int score = 0;
-	
-	// iterate the word until the string null character
-	while (word[char_idx] != '\0') {
-		// since characters is just an int
-		// get the numberer in the letter_scores array at the number that the character represents
-		score += letter_scores[word[char_idx]];
-		// increment character index
-		char_idx++;
-	}
-	
-	return score;
-}
-
-
-void make_score_array() {
-	// array of all scores for the alphabet
-	const int alphabet_score[26] = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
-	
-	// the index of the current letter_score
-	int cur_let = 0;
-
-	// set the first 65 characters to 0
-	for (; cur_let < 65; cur_let++) {
-		letter_scores[cur_let] = 0;
-	}
-
-	// one set of the alphabet
-	for (int i = 0; i < 26; i++) {
-		letter_scores[cur_let + i] = alphabet_score[i];
-	}
-
-	// six 0s
-	for (cur_let = 91; cur_let < 97; cur_let++) {
-		letter_scores[cur_let] = 0;	
-	}
-
-	// another alphabet
-	for (int i = 0; i < 26; i++) {
-		letter_scores[cur_let + i] = alphabet_score[i];
-	}
-
-	// extra padding for rest of ascii characters of 0s
-	for (cur_let = 123; cur_let < 256; cur_let++) {
-		letter_scores[cur_let] = 0;	
-	}
-}
+	// how many characters to move along in the window
+	unsigned int window_shift;
+} test_args_t;
 
 
 // function to ensure that the get_score function is accurate
@@ -100,26 +45,12 @@ void test() {
 }
 
 
-typedef struct test_args {
-	// pointer to an array of characters
-	char *word_list;
-	// length of each word
-	unsigned int word_length;
-	// number of words
-	unsigned int word_count;
-	// where to start processing the words
-	unsigned int word_start;
-
-	// how many characters to move along in the window
-	unsigned int window_shift;
-} test_args_t;
-
-
 DWORD WINAPI word_score_loop(void *args_) {
 	test_args_t *args = (test_args_t*)args_;
 
-	// pass pointer to start of word and then pass length as well
+	// iterate words from start to count
 	for (unsigned int word = args->word_start; word < args->word_count; word++) {
+		// pass pointer to start of word and then pass length as well
 		get_score_fast(&args->word_list[word * args->word_length], args->word_length);
 	}
 
@@ -127,7 +58,7 @@ DWORD WINAPI word_score_loop(void *args_) {
 }
 
 
-void perform_test(char *word_list, unsigned int word_length, unsigned int word_count, unsigned int num_threads) {
+void perform_test(test_args_t *args_, unsigned int num_threads) {
 	// list of threads at size of max threads
 	HANDLE threads[MAX_THREADS];
 
@@ -141,14 +72,14 @@ void perform_test(char *word_list, unsigned int word_length, unsigned int word_c
 	clock_t start = clock();
 
 	// tests args which need to be cast as void*
-	test_args_t args = {word_list, word_length, 0, 0, 0};
+	test_args_t args = {args_->word_list, 0, args_->word_length, 0, 0, 0};
 
 	// iterate num threads time and create the thread
 	// store the thread in the thread list
 	for (int i = 0; i < num_threads; i++) {
 		// change the args for each one
 		args.word_start = args.word_count;
-		args.word_count = word_count * ((float)(i + 1) / num_threads);
+		args.word_count = args_->word_count * ((float)(i + 1) / num_threads);
 
 		HANDLE thread = CreateThread(NULL, 0, word_score_loop, (void*)(&args), 0, NULL);
 
@@ -167,11 +98,11 @@ void perform_test(char *word_list, unsigned int word_length, unsigned int word_c
 	
 	clock_t ticks = end - start;
 
-	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", word_count, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
+	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", args_->word_count, args_->word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
 }
 
 
-void create_words(char *words, unsigned int memory_len, unsigned int word_length, unsigned int word_count) {
+void create_words(test_args_t *args) {
 	// define all letters and the number of letters
 	const char letters[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
 	int num_letters = sizeof(letters) / sizeof(letters[0]) - 1;	
@@ -179,17 +110,20 @@ void create_words(char *words, unsigned int memory_len, unsigned int word_length
 	// the current random number
 	int letter_number;
 
+	int memory_len = args->word_count * args->word_length;
+
 	// assign all characters in long array to a random character
 	for (unsigned int letter = 0; letter < memory_len; letter++) {
 		letter_number = rand() % num_letters;
-		words[letter] = letters[letter_number]; 
+		// assign the characters in the word_list to a character
+		args->word_list[letter] = letters[letter_number];
 	}
 }
 
 
 // the main speed test
 int speed_test(unsigned int word_length, unsigned int num_words) {
-	test_args_t args = {NULL, word_length, num_words, 0, 1};
+	test_args_t args = {NULL, 0, word_length, num_words, 0, 1};
 
 	// ------------------------------------------------------------------------------------
 	// allocate memory
@@ -208,6 +142,10 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 		return 1;
 	}
 
+	// set the word list in the args
+	args.word_list = words;
+	args.memory_len = word_size;
+
 	printf("Memory allocation complete!\n");
 
 	// ------------------------------------------------------------------------------------
@@ -215,7 +153,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	
 	printf("Started creating words...\n");
 
-	create_words(words, word_size, word_length, num_words);
+	create_words(&args);
 
 	printf("Word creation complete!\n");
 	
@@ -223,7 +161,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	// testing 
 	
 	for (int i = 0; i < 3; i++) {
-		perform_test(words, word_length, num_words, 2);
+		perform_test(&args, 2);
 	}
 
 	// ------------------------------------------------------------------------------------
