@@ -60,9 +60,9 @@ DWORD WINAPI word_score_loop(void *args_) {
 	unsigned int end_pointer = start_pointer + ((args->word_count - 1) * args->window_shift);
 
 	// iterate words from start to count incrementing in size of window shift
-	for (unsigned int word = start_pointer; word < end_pointer; word += args->window_shift) {
+	for (unsigned int word = 0; word < args->word_count; word++) {
 		// pass pointer to start of word and then pass length as well
-		get_score_fast(&args->word_list[word], args->word_length);
+		get_score_fast(&args->word_list[start_pointer + (word * args->window_shift)], args->word_length);
 	}
 
 	return 0;
