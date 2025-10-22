@@ -48,10 +48,21 @@ void test() {
 DWORD WINAPI word_score_loop(void *args_) {
 	test_args_t *args = (test_args_t*)args_;
 
-	// iterate words from start to count
-	for (unsigned int word = args->word_start; word < args->word_count; word++) {
+	// where a particular word starts in the character list
+	// scenario:
+	// abcdefghijklmno
+	// word 0 len 3 shift 2 = abc
+	// word 1 = cde
+	// word n = shift * n
+	unsigned int start_pointer = args->word_start * args->window_shift;
+
+	// gets the index of the end
+	unsigned int end_pointer = start_pointer + ((args->word_count - 1) * args->window_shift);
+
+	// iterate words from start to count incrementing in size of window shift
+	for (unsigned int word = start_pointer; word < end_pointer; word += args->window_shift) {
 		// pass pointer to start of word and then pass length as well
-		get_score_fast(&args->word_list[word * args->word_length], args->word_length);
+		get_score_fast(&args->word_list[word], args->word_length);
 	}
 
 	return 0;
@@ -72,14 +83,14 @@ void perform_test(test_args_t *args_, unsigned int num_threads) {
 	clock_t start = clock();
 
 	// tests args which need to be cast as void*
-	test_args_t args = {args_->word_list, 0, args_->word_length, 0, 0, 0};
+	test_args_t args = *args_;
+	args.word_count = (float)args_->word_count / num_threads;
 
 	// iterate num threads time and create the thread
 	// store the thread in the thread list
 	for (int i = 0; i < num_threads; i++) {
 		// change the args for each one
-		args.word_start = args.word_count;
-		args.word_count = args_->word_count * ((float)(i + 1) / num_threads);
+		args.word_start = args.word_count * i;
 
 		HANDLE thread = CreateThread(NULL, 0, word_score_loop, (void*)(&args), 0, NULL);
 
@@ -110,10 +121,8 @@ void create_words(test_args_t *args) {
 	// the current random number
 	int letter_number;
 
-	int memory_len = args->word_count * args->word_length;
-
 	// assign all characters in long array to a random character
-	for (unsigned int letter = 0; letter < memory_len; letter++) {
+	for (unsigned int letter = 0; letter < args->memory_len; letter++) {
 		letter_number = rand() % num_letters;
 		// assign the characters in the word_list to a character
 		args->word_list[letter] = letters[letter_number];
@@ -121,9 +130,18 @@ void create_words(test_args_t *args) {
 }
 
 
+int get_window_size(test_args_t *args) {
+	return args->word_length + ((args->word_count - 1) * args->window_shift);
+}
+
+
 // the main speed test
-int speed_test(unsigned int word_length, unsigned int num_words) {
-	test_args_t args = {NULL, 0, word_length, num_words, 0, 1};
+int speed_test(unsigned int word_length, unsigned int num_words, unsigned int window_size) {
+	if (window_size > word_length) {
+		return 1;
+	}
+
+	test_args_t args = {NULL, 0, word_length, num_words, 0, window_size};
 
 	// ------------------------------------------------------------------------------------
 	// allocate memory
@@ -131,7 +149,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	printf("Started allocating memory...\n");
 	
 	// get overall size
-	unsigned int word_size = num_words * word_length;
+	unsigned int word_size = get_window_size(&args);
 
 	// allocate some memory to store a long string of characters
 	char *words = malloc(word_size * sizeof(char));
@@ -146,6 +164,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	args.word_list = words;
 	args.memory_len = word_size;
 
+	printf("Allocated memory of size %d characters!\n", word_size);
 	printf("Memory allocation complete!\n");
 
 	// ------------------------------------------------------------------------------------
@@ -189,7 +208,7 @@ int main(int argc, char **argv) {
 	// if no args, perform the tests
 	else {
 		test();
-		speed_test(1000, 1000 * 1000);
+		speed_test(1000, 1000 * 1000, 1);
 	}
 
 	return 0;

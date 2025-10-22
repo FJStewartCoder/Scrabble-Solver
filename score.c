@@ -1,4 +1,5 @@
 #include "score.h"
+#include <stdio.h>
 
 // array that stores all of the letter scores for each ASCII (8bit) character
 // majority of this array is 0s

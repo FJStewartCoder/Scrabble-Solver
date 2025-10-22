@@ -1,0 +1,16 @@
+Window System:
+
+how many characters do we need (n) when we have word length (w) and a word count of (c) with increments of (i)
+
+w = 2
+c = 1
+i = 1
+ab
+so n = 2
+
+c = 2
+abc (ab, bc)
+
+for each word we need we need another i characters
+
+n = w + ((c - 1) * i)
