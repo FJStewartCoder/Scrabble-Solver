@@ -10,6 +10,7 @@
 // a lookup is faster than if statement
 int letter_scores[256];
 
+
 // function to get the score of any word
 int get_score(char *word) {
 	// the current character's index in the given word
@@ -28,6 +29,7 @@ int get_score(char *word) {
 	
 	return score;
 }
+
 
 void make_score_array() {
 	// array of all scores for the alphabet
@@ -62,6 +64,7 @@ void make_score_array() {
 	}
 }
 
+
 // function to ensure that the get_score function is accurate
 void test() {
 	// £ and $ don't work
@@ -80,12 +83,14 @@ void test() {
 	}
 }
 
+
 typedef struct test_args {
 	char *word_list;
 	unsigned int word_length;
 	unsigned int word_start;
 	unsigned int word_count;
 } test_args_t;
+
 
 DWORD WINAPI word_score_loop(void *args_) {
 	test_args_t *args = (test_args_t*)args_;
@@ -102,6 +107,7 @@ DWORD WINAPI word_score_loop(void *args_) {
 
 	return 0;
 }
+
 
 void perform_test(char *word_list, unsigned int word_length, unsigned int word_count, unsigned int num_threads) {
 	// list of threads at size of max threads
@@ -146,6 +152,31 @@ void perform_test(char *word_list, unsigned int word_length, unsigned int word_c
 	printf("Time taken (%d %d letter words) -> %fs, %ld clock cycles\n", word_count, word_length, (double)ticks / CLOCKS_PER_SEC, ticks);
 }
 
+
+void create_words(char *words, unsigned int memory_len, unsigned int word_length, unsigned int word_count) {
+	// define all letters and the number of letters
+	const char letters[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+	int num_letters = sizeof(letters) / sizeof(letters[0]) - 1;	
+	
+	// the current random number
+	int letter_number;
+
+	// assign all characters in long array to a random character
+	for (unsigned int letter = 0; letter < memory_len; letter++) {
+		letter_number = rand() % num_letters;
+		words[letter] = letters[letter_number]; 
+	}
+	
+	// every word_length + 1 characters should be a null terminator to define the end of each string
+	// e.g a  a  0  a  a  0  a  a  0
+	//     0, 1, 2, 3, 4, 5, 6, 7, 8
+	// so word len here is 2 so we need null terminators each word_len + 1 starting at the index word length
+	for (unsigned int null_pos = word_length; null_pos < memory_len; null_pos += (word_length + 1)) {
+		words[null_pos] = '\0';
+	}
+}
+
+
 // the main speed test
 int speed_test(unsigned int word_length, unsigned int num_words) {
 	// ------------------------------------------------------------------------------------
@@ -174,26 +205,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 	
 	printf("Started creating words...\n");
 
-	// define all letters and the number of letters
-	const char letters[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
-	int num_letters = sizeof(letters) / sizeof(letters[0]) - 1;	
-	
-	// the current random number
-	int letter_number;
-
-	// assign all characters in long array to a random character
-	for (unsigned int letter = 0; letter < word_size; letter++) {
-		letter_number = rand() % num_letters;
-		words[letter] = letters[letter_number]; 
-	}
-	
-	// every word_length + 1 characters should be a null terminator to define the end of each string
-	// e.g a  a  0  a  a  0  a  a  0
-	//     0, 1, 2, 3, 4, 5, 6, 7, 8
-	// so word len here is 2 so we need null terminators each word_len + 1 starting at the index word length
-	for (unsigned int null_pos = word_length; null_pos < word_size; null_pos += (word_length + 1)) {
-		words[null_pos] = '\0';
-	}
+	create_words(words, word_size, word_length, num_words);
 
 	printf("Word creation complete!\n");
 	
@@ -211,6 +223,7 @@ int speed_test(unsigned int word_length, unsigned int num_words) {
 
 	return 0;
 }
+
 
 int main(int argc, char **argv) {
 	// make the score array
