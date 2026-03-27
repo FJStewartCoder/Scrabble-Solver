@@ -3,7 +3,7 @@
 #include <time.h>
 #include <windows.h>
 
-#include "score.h"
+#include "algorithms/score.h"
 
 #define MAX_THREADS 10
 
