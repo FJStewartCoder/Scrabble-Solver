@@ -22,10 +22,10 @@ int create_different_score_array() {
     return 0;
 }
 
-const int get_different_word_score(char *word, size_t length) {
+const int get_different_word_score(char *word) {
     int score = 0;
 
-    // size_t length = strlen(word);
+    size_t length = strlen(word);
 
     // this magically does not go over the length of the string due to the null terminator
     // for odd or even it works differently but null terminator saves us

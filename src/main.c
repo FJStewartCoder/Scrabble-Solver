@@ -12,6 +12,9 @@
 #include "algorithms/simple.h"
 
 
+#include "tests/test.h"
+
+
 #define MAX_THREADS 10
 
 
@@ -33,24 +36,6 @@ typedef struct test_args {
 } test_args_t;
 
 
-// function to ensure that the get_word_score function is accurate
-void test() {
-	// £ and $ don't work
-	// gets score of 2 alphabets (lower and upper) then some bonus chars which should be ignored
-	int score = get_word_score("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890!%^&*()_+-=`,./<>?[]{};'#:@~|\\");
-	
-	// prints score
-	printf("%d\n", score);
-
-	// one alphabet's sum is 87; so, we expect 87 * 2
-	if (score != 87 * 2) {
-		printf("Fail!\n");
-	}
-	else {
-		printf("Success!\n");	
-	}
-}
-
 
 DWORD WINAPI word_score_loop(void *args_) {
 	test_args_t *args = (test_args_t*)args_;
@@ -69,7 +54,7 @@ DWORD WINAPI word_score_loop(void *args_) {
 	// iterate words from start to count incrementing in size of window shift
 	for (unsigned int word = 0; word < args->word_count; word++) {
 		// pass pointer to start of word and then pass length as well
-		get_big_word_score(&args->word_list[start_pointer + (word * args->window_shift)], args->word_length);
+		// get_big_word_score(&args->word_list[start_pointer + (word * args->window_shift)], args->word_length);
 	}
 
 	return 0;
@@ -201,23 +186,26 @@ int speed_test(unsigned int word_length, unsigned int num_words, unsigned int wi
 
 int main(int argc, char **argv) {
 	// make the score arrays
-	create_score_array();
+
+	// create_score_array();
+	// create_different_score_array();
 	create_big_score_array();
-	create_different_score_array();
 
 	// if there are more than 1 arg, get the score for each arg and print it out
 	if (argc > 1) {
 		int score;
 
 		for (int i = 1; i < argc; i++) {
-			score = get_word_score(argv[i]);
+			score = get_big_word_score(argv[i]);
 			printf("%s -> %d\n", argv[i], score);
 		}
 	}
 	// if no args, perform the tests
 	else {
 		test();
-		speed_test(1000, 1000 * 1000, 1);
+
+		// test();
+		// speed_test(1000, 1000 * 1000, 1);
 	}
 
 	return 0;

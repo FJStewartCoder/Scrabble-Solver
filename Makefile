@@ -18,7 +18,17 @@ simple.o: src/algorithms/simple.c
 
 
 
-all: base.o big.o ram_abuse.o shortptr.o simple.o src/main.c
+test.o: src/tests/test.c
+	${CC} ${FLAGS} $^ -Iinclude -Iinclude/tests -o $@ -c
+
+speed_test.o: src/tests/speed_test.c
+	${CC} ${FLAGS} $^ -Iinclude -Iinclude/tests -o $@ -c
+
+functionality_test.o: src/tests/functionality_test.c
+	${CC} ${FLAGS} $^ -Iinclude -Iinclude/tests -o $@ -c
+
+
+all: test.o speed_test.o functionality_test.o base.o big.o ram_abuse.o shortptr.o simple.o src/main.c
 	${CC} ${FLAGS} $^ -Iinclude
 
 clean:

@@ -2,12 +2,16 @@
 #include "base.h"
 
 #include <string.h>
+#include <stdio.h>
 
 
 static short big_score_array[256 * 256 * 256];
 
 
 int create_big_score_array() {
+    // this array needs to be initialised before creating this one
+    create_score_array();
+
     memset(&big_score_array, 0, sizeof(big_score_array));
 
     size_t big_array_size = 256 * 256 * 256;
@@ -27,10 +31,10 @@ int create_big_score_array() {
     return 0;
 }
 
-const int get_big_word_score(char *word, size_t length) {
+const int get_big_word_score(char *word) {
     int score = 0;
 
-    // size_t length = strlen(word);
+    size_t length = strlen(word);
 
     int remainder = length % 3;
 
@@ -43,7 +47,7 @@ const int get_big_word_score(char *word, size_t length) {
     for (size_t idx = remainder; idx < length; idx += 3) {
         unsigned int *cur = (unsigned int*)(word + idx);
 
-        size_t i = (*cur >> 8) & 0xffffff;
+        size_t i = (*cur) & 0xffffff;
 
         score += big_score_array[i];
     }
