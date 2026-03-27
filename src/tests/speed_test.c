@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 
-#define WORD_LENGTH 1000 * 1000
+#define WORD_LENGTH 1000
+#define WORD_COUNT 1000 * 1000
 
 
 const double speed_test_algorithm(const int (*score_func)(char *)) {
@@ -25,7 +26,7 @@ const double speed_test_algorithm(const int (*score_func)(char *)) {
 
     time_t start = clock();
 
-    for (size_t i = 0; i < 1000; i++) {
+    for (size_t i = 0; i < WORD_COUNT; i++) {
         score = score_func(random_word);
     }
 
