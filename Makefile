@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -Wall -g
+FLAGS = -Wall -g -O3
 
 base.o: src/algorithms/base.c
 	${CC} ${FLAGS} $^ -Iinclude/algorithms -o $@ -c

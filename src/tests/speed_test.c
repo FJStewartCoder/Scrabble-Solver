@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-#define WORD_LENGTH 1000
+#define WORD_LENGTH 1000 
 #define WORD_COUNT 1000 * 1000
 
 
