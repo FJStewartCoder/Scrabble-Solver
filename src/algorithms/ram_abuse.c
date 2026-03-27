@@ -12,9 +12,6 @@ typedef unsigned char byte_t;
 // will be malloced
 static byte_t *ram_abuse_score_array;
 
-const size_t four_chars_to_int(byte_t c1, byte_t c2, byte_t c3, byte_t c4) {
-    return c4 | (c3 << 8) | (c2 << 16) | (c1 << 24);
-}
 
 int create_ram_abuse_score_array() {
     size_t array_size = 0xffffffff;

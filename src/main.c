@@ -69,7 +69,7 @@ DWORD WINAPI word_score_loop(void *args_) {
 	// iterate words from start to count incrementing in size of window shift
 	for (unsigned int word = 0; word < args->word_count; word++) {
 		// pass pointer to start of word and then pass length as well
-		get_different_word_score(&args->word_list[start_pointer + (word * args->window_shift)], args->word_length);
+		get_big_word_score(&args->word_list[start_pointer + (word * args->window_shift)], args->word_length);
 	}
 
 	return 0;
@@ -200,8 +200,10 @@ int speed_test(unsigned int word_length, unsigned int num_words, unsigned int wi
 
 
 int main(int argc, char **argv) {
-	// make the score array
+	// make the score arrays
 	create_score_array();
+	create_big_score_array();
+	create_different_score_array();
 
 	// if there are more than 1 arg, get the score for each arg and print it out
 	if (argc > 1) {

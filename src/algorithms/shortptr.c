@@ -6,7 +6,7 @@
 
 static short different_score_array[256 * 256];
 
-const int chars_to_int(char c1, char c2) {
+static const int chars_to_int(char c1, char c2) {
     return 0 | c2 | (c1 << 8);
 }
 

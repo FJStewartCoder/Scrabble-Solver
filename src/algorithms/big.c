@@ -4,7 +4,8 @@
 #include <string.h>
 
 
-static short big_score_array[256][256][256];
+static short big_score_array[256 * 256 * 256];
+
 
 int create_big_score_array() {
     memset(&big_score_array, 0, sizeof(big_score_array));
@@ -20,23 +21,31 @@ int create_big_score_array() {
 
         // get the score and store it
         int score = get_letter_score(c1) + get_letter_score(c2) + get_letter_score(c3);
-        big_score_array[c1][c2][c3] = score;
+        big_score_array[i] = score;
     }
 
     return 0;
 }
 
-const int get_big_word_score(char *word) {
+const int get_big_word_score(char *word, size_t length) {
     int score = 0;
 
-    size_t length = strlen(word);
+    // size_t length = strlen(word);
 
-    for (size_t idx = 0; idx < length; idx += 3) {
-        char c1 = word[idx];
-        char c2 = word[idx + 1];
-        char c3 = word[idx + 2];
+    int remainder = length % 3;
 
-        score += big_score_array[c1][c2][c3];
+    if (remainder != 0) {
+        for (int i = 0; i < remainder; i++) {
+            score += get_letter_score(word[i]);
+        }
+    }
+
+    for (size_t idx = remainder; idx < length; idx += 3) {
+        unsigned int *cur = (unsigned int*)(word + idx);
+
+        size_t i = (*cur >> 8) & 0xffffff;
+
+        score += big_score_array[i];
     }
 
     return score;
