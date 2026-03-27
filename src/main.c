@@ -3,7 +3,14 @@
 #include <time.h>
 #include <windows.h>
 
-#include "algorithms/score.h"
+
+#include "algorithms/base.h"
+
+#include "algorithms/big.h"
+#include "algorithms/ram_abuse.h"
+#include "algorithms/shortptr.h"
+#include "algorithms/simple.h"
+
 
 #define MAX_THREADS 10
 
