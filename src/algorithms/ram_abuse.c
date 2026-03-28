@@ -7,8 +7,6 @@
 #include <stdio.h>
 
 
-typedef unsigned char byte_t;
-
 // will be malloced
 static byte_t *ram_abuse_score_array;
 
@@ -45,7 +43,9 @@ int create_ram_abuse_score_array() {
     }
 
     puts("Score sheet does not exist");
-    fclose(score_fp);
+
+    // don't need to close if it never opened
+    // fclose(score_fp);
 
     for (size_t i = 0; i < array_size; i++) {
         byte_t c1 = i & 0xff;
