@@ -35,10 +35,10 @@ const int test_algorithm(const int (*score_func)(char *)) {
         const int test_successful = score == test->expected;
 
         if (test_successful) {
-            printf("Successfully scored word %s\n", test->word);
+            printf("Successfully scored word %s (%d) as %lu\n", test->word, score, test->expected);
         }
         else {
-            printf("Unsuccessfully scored word %s as %d instead of %lu\n", test->word, score, test->expected);
+            printf("Unsuccessfully scored word %s (%d) as %lu\n", test->word, score, test->expected);
             success = 0;
         }
     }

@@ -12,6 +12,8 @@ static byte_t *ram_abuse_score_array;
 
 
 int create_ram_abuse_score_array() {
+    create_score_array();
+
     size_t array_size = 0xffffffff;
     ram_abuse_score_array = calloc(array_size, sizeof(byte_t));
 
