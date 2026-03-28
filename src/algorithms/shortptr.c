@@ -22,14 +22,16 @@ int create_different_score_array() {
     return 0;
 }
 
-const int get_different_word_score(char *word) {
+static const int calc_score(char *word, size_t length) {
     int score = 0;
 
-    size_t length = strlen(word);
+    int remainder = length % 2;
 
-    // this magically does not go over the length of the string due to the null terminator
-    // for odd or even it works differently but null terminator saves us
-    for (size_t idx = 0; idx < length; idx += 2) {
+    if (remainder) {
+        score += get_letter_score(word[0]);
+    }
+
+    for (size_t idx = remainder; idx < length; idx += 2) {
         // word is list of bytes
         // short is two bytes
         // convert the pointer to char to pointer to character to combine the two characters
@@ -40,4 +42,9 @@ const int get_different_word_score(char *word) {
     }
 
     return score;
+}
+
+const int get_different_word_score(char *word) {
+    int length = strlen(word);
+    return calc_score(word, length);
 }
