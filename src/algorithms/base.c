@@ -33,6 +33,6 @@ int create_score_array() {
     return 0;
 }
 
-const int get_letter_score(byte_t c) {
+const byte_t get_letter_score(byte_t c) {
     return score_array[c];
 }

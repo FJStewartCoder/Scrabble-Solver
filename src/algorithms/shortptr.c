@@ -4,19 +4,20 @@
 #include <string.h>
 
 
-static short different_score_array[256 * 256];
+static byte_t different_score_array[256 * 256];
 
-static const int chars_to_int(char c1, char c2) {
-    return 0 | c2 | (c1 << 8);
-}
 
 int create_different_score_array() {
     memset(&different_score_array, 0, sizeof(different_score_array));
 
-    for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < 256; j++) {
-            different_score_array[chars_to_int(i, j)] = get_letter_score(i) + get_letter_score(j);
-        }
+    const size_t array_size = 256 * 256;
+
+    for (int i = 0; i < array_size; i++) {
+        byte_t c1 = i & 0xff;
+        byte_t c2 = (i >> 8) & 0xff;
+
+        const byte_t score = get_letter_score(c1) + get_letter_score(c2);
+        different_score_array[i] = score;
     }
 
     return 0;
@@ -36,7 +37,7 @@ static const int calc_score(char *word, size_t length) {
         // short is two bytes
         // convert the pointer to char to pointer to character to combine the two characters
         // dereference to get the number which is the index in the array
-        short *cur = (short*)(word + idx);
+        unsigned short *cur = (unsigned short*)(word + idx);
 
         score += different_score_array[*cur];
     }

@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 
-static short big_score_array[256 * 256 * 256];
+static byte_t big_score_array[256 * 256 * 256];
 
 
 int create_big_score_array() {
@@ -19,12 +19,12 @@ int create_big_score_array() {
     // iterate each possible combination of values up to the total size
     for (size_t i = 0; i < big_array_size; i++) {
         // break up the index into the different character components
-        char c1 = i & 0xff;
-        char c2 = (i >> 8) & 0xff;
-        char c3 = (i >> 16) & 0xff;
+        byte_t c1 = i & 0xff;
+        byte_t c2 = (i >> 8) & 0xff;
+        byte_t c3 = (i >> 16) & 0xff;
 
         // get the score and store it
-        int score = get_letter_score(c1) + get_letter_score(c2) + get_letter_score(c3);
+        byte_t score = get_letter_score(c1) + get_letter_score(c2) + get_letter_score(c3);
         big_score_array[i] = score;
     }
 

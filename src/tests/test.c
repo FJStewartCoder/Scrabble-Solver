@@ -40,7 +40,7 @@ const size_t num_algs = sizeof(algs) / sizeof(algs[0]);
 
 int test() {
     for (size_t i = 0; i < num_algs; i++) {
-        algorithm_t *alg = &algs[i];
+        const algorithm_t *alg = &algs[i];
 
         char *alg_name;
 
@@ -86,4 +86,6 @@ int test() {
 
         printf("%s has been destructed\n", alg_name);
     }
+
+    return 0;
 }

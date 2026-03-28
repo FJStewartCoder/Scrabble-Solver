@@ -4,6 +4,6 @@
 typedef unsigned char byte_t;
 
 int create_score_array();
-const int get_letter_score(byte_t c);
+const byte_t get_letter_score(byte_t c);
 
 #endif

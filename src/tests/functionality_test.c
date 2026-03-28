@@ -38,7 +38,7 @@ const int test_algorithm(const int (*score_func)(char *)) {
             printf("Successfully scored word %s\n", test->word);
         }
         else {
-            printf("Unsuccessfully scored word %s as %d instead of %d\n", test->word, score, test->expected);
+            printf("Unsuccessfully scored word %s as %d instead of %lu\n", test->word, score, test->expected);
             success = 0;
         }
     }

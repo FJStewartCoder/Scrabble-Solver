@@ -15,7 +15,7 @@ int create_ram_abuse_score_array() {
     size_t array_size = 0xffffffff;
     ram_abuse_score_array = calloc(array_size, sizeof(byte_t));
 
-    printf("%u\n", array_size);
+    printf("%lu\n", array_size);
 
     if ( ram_abuse_score_array == NULL ) {
         puts("Failed to allocate score array");
@@ -57,9 +57,12 @@ int create_ram_abuse_score_array() {
         ram_abuse_score_array[i] = score;
 
         if ( (i % 1000000) == 0 ) {
-            printf("%u\n", i);
+            printf("\r%lu", i);
         }
     }
+
+    // put a new line after outputting each size
+    putc('\n', stdout);
 
     FILE *fp = fopen("score_sheet.txt", "wb");
 
