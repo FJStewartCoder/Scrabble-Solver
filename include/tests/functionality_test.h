@@ -1,6 +1,8 @@
 #ifndef FUNC_TEST_H
 #define FUNC_TEST_H
 
-const int test_algorithm(const int (*score_func)(char *));
+#include "algorithms/base.h"
+
+const int test_algorithm(score_func_t *score_func);
 
 #endif

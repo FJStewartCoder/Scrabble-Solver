@@ -36,3 +36,7 @@ int create_score_array() {
 const byte_t get_letter_score(byte_t c) {
     return score_array[c];
 }
+
+const int get_word_score(score_func_t *score_func, char *word) {
+    return score_func(word, strlen(word));
+}

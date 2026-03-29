@@ -31,10 +31,8 @@ int create_big_score_array() {
     return 0;
 }
 
-const int get_big_word_score(char *word) {
+const int big_score(char *word, size_t length) {
     int score = 0;
-
-    size_t length = strlen(word);
 
     int remainder = length % 3;
 

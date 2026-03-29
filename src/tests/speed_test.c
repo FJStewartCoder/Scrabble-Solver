@@ -102,7 +102,7 @@ char *get_word(word_list_t *w_list, size_t idx) {
 }
 
 
-const double speed_test_algorithm(const int (*score_func)(char *)) {
+const double speed_test_algorithm(score_func_t *score_func) {
     srand(time(NULL));
 
     word_list_t words = init_word_list();
@@ -111,12 +111,10 @@ const double speed_test_algorithm(const int (*score_func)(char *)) {
 
     time_t start = clock();
 
-    for (int i = words.word_count - 1; i >= 0; i--) {
+    for (int i = 0; i < words.word_count; i++) {
         char *word = get_word(&words, i);
 
-        word[words.word_length - 1] = '\0';
-
-        score = score_func(word);
+        score = score_func(word, words.word_length);
     }
 
     time_t end = clock();

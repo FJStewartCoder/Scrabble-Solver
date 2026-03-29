@@ -2,16 +2,11 @@
 #include "base.h"
 
 
-const int get_word_score(char *word) {
+const int simple_score(char *word, size_t length) {
     int score = 0;
 
-    // while the character is not null terminator
-    while (*word != '\0') {
-        // add the current score to the total score
-        score += get_letter_score(*word);
-
-        // move the pointer for the word along
-        word++;
+    for ( int i = 0; i < length; i++ ) {
+        score += get_letter_score(word[i]);
     }
 
     return score;

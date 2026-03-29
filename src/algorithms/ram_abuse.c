@@ -81,10 +81,8 @@ int destruct_ram_abuse_score_array() {
     return 0;
 }
 
-const int get_ram_abuse_word_score(char *word) {
+const int ram_abuse_score(char *word, size_t length) {
     int score = 0;
-
-    size_t length = strlen(word);
 
     int remainder = length % 4;
 

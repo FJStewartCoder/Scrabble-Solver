@@ -33,7 +33,7 @@ int create_different_score_array() {
     return 0;
 }
 
-static const int calc_score(char *word, size_t length) {
+const int different_score(char *word, size_t length) {
     // initialise the score
     int score = 0;
 
@@ -57,12 +57,4 @@ static const int calc_score(char *word, size_t length) {
 
     // return the score
     return score;
-}
-
-// wrapper for the calc_score function because it requires the word length
-// this could allow for multithreading
-const int get_different_word_score(char *word) {
-    const int length = strlen(word);
-
-    return calc_score(word, length);
 }
